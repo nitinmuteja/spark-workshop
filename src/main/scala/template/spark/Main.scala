@@ -1,5 +1,6 @@
 package template.spark
 
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 
 final case class Person(firstName: String, lastName: String,
@@ -27,12 +28,13 @@ object Main extends App with InitSpark {
   println(sum)
 
 
-
- implicit val  dataSets =  TestFunctions.importDataSets
-
-
-
-
+  val circuitDataSet: DataFrame = TestFunctions.importCircuitDataSet
+  val raceDataSet: DataFrame = TestFunctions.importRacesDataSet
+  val resultDataSet = TestFunctions.totalRacesByNationality(circuitDataSet, raceDataSet)
+  resultDataSet.show()
+  GenericFunctions.SaveData("RacesByNationality", resultDataSet)
+  val parquetFileDF = spark.read.parquet("RacesByNationality")
+  parquetFileDF.show()
   close
 
 }
