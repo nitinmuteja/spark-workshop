@@ -1,0 +1,87 @@
+plugins {
+    id 'scala'
+    id "com.github.johnrengelman.shadow" version "4.0.2"
+}
+
+group 'template.spark'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'scala'
+apply plugin: 'idea'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+configurations {
+    provided
+}
+
+sourceSets {
+    main {
+        compileClasspath += configurations.provided
+    }
+}
+
+repositories {
+    jcenter()
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
+}
+
+dependencies {
+    compile 'org.scala-lang:scala-library:' + scalaVersion
+    compile 'org.scala-lang:scala-reflect:' + scalaVersion
+//    compile 'org.scala-lang:scala-compiler:' + scalaVersion
+
+    compile 'org.apache.spark:spark-core_2.11:2.4.4'
+    compile 'org.apache.spark:spark-sql_2.11:2.4.4'
+
+    compile group: 'commons-io', name: 'commons-io', version: '2.5'
+
+    testCompile 'junit:junit:4.12'
+    testImplementation 'org.scalatest:scalatest_2.11:3.0.8'
+}
+
+task run(type: JavaExec, dependsOn: classes) {
+    main = mainClassFile
+    classpath sourceSets.main.runtimeClasspath
+    classpath configurations.runtime
+}
+
+//jar {
+//    classifier = 'all'
+//    manifest {
+//        attributes 'Implementation-Title': title,
+//                'Implementation-Version': version,
+//                'Main-Class': mainClassFile
+//    }
+//    include{sourceSets.main.output.classesDir}
+//    zip64 true
+//}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': title,
+                'Implementation-Version': version,
+                'Main-Class': mainClassFile
+    }
+    zip64 true
+}
+
+shadowJar {
+  zip64 true
+}
+
+test {
+    useJUnit()
+}
+
+idea {
+    module {
+        // IntelliJ does not know about the standard idiom of provided as used in managing
+        // uber/shaded jar dependencies. Make it so!
+        scopes.PROVIDED.plus += [ configurations.provided ]
+    }
+}
