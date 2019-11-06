@@ -1,7 +1,7 @@
 package template.spark
 
 import org.apache.log4j.{Level, LogManager, Logger}
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 trait InitSpark {
   implicit val spark: SparkSession = SparkSession.builder()
@@ -12,6 +12,9 @@ trait InitSpark {
 
   val sc = spark.sparkContext
   val sqlContext = spark.sqlContext
+
+
+
 
   //Optional
   def reader = spark.read
@@ -28,7 +31,15 @@ trait InitSpark {
     LogManager.getRootLogger.setLevel(Level.ERROR)
   }
 
+
+
   init
+
+
+  val circuitDataSet: DataFrame = TestFunctions.importCircuitDataSet
+  val raceDataSet: DataFrame = TestFunctions.importRacesDataSet
+  val resultsDataSet: DataFrame = TestFunctions.importResultsDataSet
+  val driversDataSet: DataFrame = TestFunctions.importDriversDataSet
 
   def close = {
     spark.close()

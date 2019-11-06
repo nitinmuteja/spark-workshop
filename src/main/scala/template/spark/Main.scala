@@ -1,40 +1,61 @@
 package template.spark
 
-import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.functions._
 
 final case class Person(firstName: String, lastName: String,
                         country: String, age: Int)
 
 object Main extends App with InitSpark {
 
-  import spark.implicits._
 
-  val version = spark.version
-  println("SPARK VERSION = " + version)
+  //  val version = spark.version
+  //  println("SPARK VERSION = " + version)
+  //
+  //  val sumHundred = spark.range(1, 101).reduce(_ + _)
+  //  println(f"Sum 1 to 100 = $sumHundred")
+  //
+  //  println("Reading from csv file: people-example.csv")
+  //  val persons = reader.csv("people-example.csv").as[Person]
+  //  persons.show(2)
+  //  val averageAge = persons.agg(avg("age"))
+  //    .first.get(0).asInstanceOf[Double]
+  //  println(f"Average Age: $averageAge%.2f")
+  //
+  //
+  //  val sum = TestFunctions.addNaturalNumbers(100)
+  //  println(sum)
 
-  val sumHundred = spark.range(1, 101).reduce(_ + _)
-  println(f"Sum 1 to 100 = $sumHundred")
 
-  println("Reading from csv file: people-example.csv")
-  val persons = reader.csv("people-example.csv").as[Person]
-  persons.show(2)
-  val averageAge = persons.agg(avg("age"))
-    .first.get(0).asInstanceOf[Double]
-  println(f"Average Age: $averageAge%.2f")
+  def totalRacesByNationality(): Unit = {
+    val resultDataSet = TestFunctions.totalRacesByNationality(circuitDataSet, raceDataSet)
+    resultDataSet.show()
+    GenericFunctions.SaveData("RacesByNationality", resultDataSet)
+  }
+
+  totalRacesByNationality()
+
+  def winsByNationality(): Unit = {
+    val resultDataSet = TestFunctions.totalWinsByNationality(driversDataSet, resultsDataSet)
+    resultDataSet.show()
+    GenericFunctions.SaveData("WinsByNationality", resultDataSet)
+  }
+
+  winsByNationality()
 
 
-  val sum = TestFunctions.addNaturalNumbers(100)
-  println(sum)
+  def driversByNationality(): Unit = {
+    val driverNationalityDataSet = TestFunctions.totalDriversByNationality(driversDataSet)
+    driverNationalityDataSet.show()
+  }
 
+  driversByNationality()
 
-  val circuitDataSet: DataFrame = TestFunctions.importCircuitDataSet
-  val raceDataSet: DataFrame = TestFunctions.importRacesDataSet
-  val resultDataSet = TestFunctions.totalRacesByNationality(circuitDataSet, raceDataSet)
-  resultDataSet.show()
-  GenericFunctions.SaveData("RacesByNationality", resultDataSet)
-  val parquetFileDF = spark.read.parquet("RacesByNationality")
-  parquetFileDF.show()
+  def ratioOfWonAndParticipated(): Unit = {
+    val ratio = TestFunctions.ratioOfRacesWonAndParticipated(resultsDataSet  , driversDataSet)
+    ratio.show()
+  }
+
+  ratioOfWonAndParticipated()
+
   close
 
 }
